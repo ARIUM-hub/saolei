@@ -112,9 +112,19 @@ function placeFixedMines(game, minePositions) {
 }
 
 function placeRandomMines(game, safeIndex) {
-  const available = game.cells
+  const protectedIndexes = new Set([
+    safeIndex,
+    ...getNeighborIndexes(game, safeIndex),
+  ]);
+  let available = game.cells
     .map((cell) => cell.index)
-    .filter((index) => index !== safeIndex);
+    .filter((index) => !protectedIndexes.has(index));
+
+  if (available.length < game.mines) {
+    available = game.cells
+      .map((cell) => cell.index)
+      .filter((index) => index !== safeIndex);
+  }
 
   for (let placed = 0; placed < game.mines; placed += 1) {
     const nextIndex = Math.floor(game.random() * available.length);
